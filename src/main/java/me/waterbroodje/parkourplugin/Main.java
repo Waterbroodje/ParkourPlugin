@@ -3,6 +3,7 @@ package me.waterbroodje.parkourplugin;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
+import me.waterbroodje.parkourplugin.listeners.PlayerMoveListener;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,6 +20,10 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         instance = this;
         worldEditContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
+
+        registerEvents(
+                new PlayerMoveListener()
+        );
     }
 
     @Override
