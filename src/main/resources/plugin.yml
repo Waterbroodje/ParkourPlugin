@@ -1,0 +1,6 @@
+name: ParkourPlugin
+version: '${project.version}'
+main: me.waterbroodje.parkourplugin.Main
+api-version: 1.17
+authors: [ Waterbroodje ]
+description: Devroom Trial plugin
