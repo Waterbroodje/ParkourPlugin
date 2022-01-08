@@ -8,9 +8,9 @@ import org.bukkit.Location;
 
 public class WorldGuardHelper {
 
-    private RegionContainer worldEditContainer;
+    private final RegionContainer worldEditContainer;
 
-    public void load() {
+    public WorldGuardHelper() {
         worldEditContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
     }
 
