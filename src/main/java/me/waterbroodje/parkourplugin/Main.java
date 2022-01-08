@@ -8,35 +8,27 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public final class Main extends JavaPlugin {
 
     private static Main instance;
-    private static RegionContainer worldEditContainer;
-
+    public List<UUID> playerInRegion = new ArrayList<>();
 
     @Override
     public void onEnable() {
         instance = this;
-        worldEditContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
 
         registerEvents(
                 new PlayerMoveListener()
         );
     }
 
-    @Override
-    public void onDisable() {
-
-    }
-
     public static Main getInstance() {
         return instance;
-    }
-
-    public static RegionContainer getWorldEditContainer() {
-        return worldEditContainer;
     }
 
     public void registerEvents(Listener... listeners) {

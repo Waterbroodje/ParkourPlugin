@@ -1,14 +1,21 @@
 package me.waterbroodje.parkourplugin.domain;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
-import me.waterbroodje.parkourplugin.Main;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.Location;
 
 public class WorldGuardHelper {
 
+    private RegionContainer worldEditContainer;
+
+    public void load() {
+        worldEditContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
+    }
+
     public boolean isInRegion(Location location, String region) {
-        RegionManager regions = Main.getWorldEditContainer().get(BukkitAdapter.adapt(location.getWorld()));
+        RegionManager regions = worldEditContainer.get(BukkitAdapter.adapt(location.getWorld()));
 
         if (regions == null) return false;
         if (regions.getRegion(region) == null) return false;
