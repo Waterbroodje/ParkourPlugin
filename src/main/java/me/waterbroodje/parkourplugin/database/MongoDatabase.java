@@ -17,10 +17,11 @@ public class MongoDatabase {
     private static MongoCollection<Document> timeCollection;
     private static List<String> list;
 
-    static {
+    public static void connect() {
         try {
             com.mongodb.client.MongoDatabase database = new MongoClient(new MongoClientURI(Main.getInstance().getConfig().getString("mongodbConnection")))
                     .getDatabase("parkourplugin");
+
             timeCollection = database.getCollection("times");
             list = new ArrayList<>();
         } catch (Exception exception) {
@@ -38,12 +39,14 @@ public class MongoDatabase {
             }
         });
     }
-
     public static int getTime(UUID uuid) {
         Document document = timeCollection.find(new Document("uuid", uuid.toString())).first();
 
-        if (document.getInteger("time") == null) return 0;
-        return document.getInteger("time");
+        if (document != null) {
+            return document.getInteger("time");
+        } else {
+            return 0;
+        }
     }
 
     public static List<String> getLeaderboard() {
@@ -59,10 +62,9 @@ public class MongoDatabase {
     }
 
     private static void resetList() {
-        list.set(0, null);
-        list.set(1, null);
-        list.set(2, null);
-        list.set(3, null);
-        list.set(4, null);
+        list.clear();
+        for (int i = 0; i < 5; i++) {
+            list.add(i, null);
+        }
     }
 }
