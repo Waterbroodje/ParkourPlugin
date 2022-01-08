@@ -3,6 +3,7 @@ package me.waterbroodje.parkourplugin;
 import me.waterbroodje.parkourplugin.domain.WorldGuardHelper;
 import me.waterbroodje.parkourplugin.listeners.PlayerMoveListener;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -15,6 +16,8 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        this.saveDefaultConfig();
+
         instance = this;
         worldGuardHelper = new WorldGuardHelper();
 
@@ -31,6 +34,9 @@ public final class Main extends JavaPlugin {
         return worldGuardHelper;
     }
 
+    public static String chat(String s) {
+        return ChatColor.translateAlternateColorCodes('&', s);
+    }
     public void registerEvents(Listener... listeners) {
         Arrays.asList(listeners).forEach(listener ->
                 Bukkit.getPluginManager().registerEvents(listener, this));
