@@ -1,7 +1,9 @@
 package me.waterbroodje.parkourplugin;
 
+import me.waterbroodje.parkourplugin.database.MongoDatabase;
 import me.waterbroodje.parkourplugin.domain.WorldGuardHelper;
 import me.waterbroodje.parkourplugin.listeners.PlayerMoveListener;
+import me.waterbroodje.parkourplugin.managers.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Listener;
@@ -13,6 +15,7 @@ public final class Main extends JavaPlugin {
 
     private static Main instance;
     private static WorldGuardHelper worldGuardHelper;
+    private static ScoreboardManager scoreboardManager;
 
     @Override
     public void onEnable() {
@@ -20,6 +23,9 @@ public final class Main extends JavaPlugin {
 
         instance = this;
         worldGuardHelper = new WorldGuardHelper();
+        scoreboardManager = new ScoreboardManager();
+
+        MongoDatabase.connect();
 
         registerEvents(
                 new PlayerMoveListener()
@@ -32,6 +38,10 @@ public final class Main extends JavaPlugin {
 
     public static WorldGuardHelper getWorldGuardHelper() {
         return worldGuardHelper;
+    }
+
+    public static ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
     }
 
     public static String chat(String s) {
