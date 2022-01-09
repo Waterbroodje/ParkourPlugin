@@ -5,11 +5,15 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
+import jdk.jpackage.internal.IOUtils;
 import me.waterbroodje.parkourplugin.Main;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+import java.io.IOException;
+import java.net.URL;
+import java.text.ParseException;
 import java.util.*;
 
 public class MongoDatabase {
@@ -31,7 +35,11 @@ public class MongoDatabase {
 
     public static void updateTime(UUID uuid, double time) {
         try {
-            if (time < getTime(uuid)) {
+            if (getTime(uuid) != 0) {
+                if (time > getTime(uuid)) return;
+                timeCollection.updateOne(new Document("uuid", uuid.toString()), new Document("$set", new Document("time", time)),
+                        new UpdateOptions().upsert(true));
+            } else {
                 timeCollection.updateOne(new Document("uuid", uuid.toString()), new Document("$set", new Document("time", time)),
                         new UpdateOptions().upsert(true));
             }
@@ -40,11 +48,11 @@ public class MongoDatabase {
         }
     }
 
-    public static int getTime(UUID uuid) {
+    public static double getTime(UUID uuid) {
         Document document = timeCollection.find(new Document("uuid", uuid.toString())).first();
 
         if (document != null) {
-            return document.getInteger("time");
+            return document.getDouble("time");
         } else {
             return 0;
         }
@@ -54,10 +62,10 @@ public class MongoDatabase {
         FindIterable<Document> cursor = timeCollection.find().sort(new Document("time", 1)).limit(5);
         resetList();
 
-        int c = 0;
+        int c = 5;
         for (Document document : cursor) {
-            list.set(c, Main.chat(" &e#" + c + 1 + " &7- &e" + Bukkit.getOfflinePlayer(document.getString("uuid")).getName() + " &7- &f" + document.getInteger("time") + "s"));
-            c++;
+            list.set(c - 1, Main.chat(" &e#" + ((c + 1) - c) + " &7- &e" + Bukkit.getOfflinePlayer(UUID.fromString(document.getString("uuid"))).getName() + " &7- &f" + document.getDouble("time") + "s"));
+            c--;
         }
         return list;
     }
@@ -68,4 +76,5 @@ public class MongoDatabase {
             list.add(i, null);
         }
     }
+
 }
