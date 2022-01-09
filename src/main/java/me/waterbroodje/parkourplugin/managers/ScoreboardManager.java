@@ -30,38 +30,38 @@ public class ScoreboardManager {
 
         Team bestAttempt = board.registerNewTeam("bestAttempt");
         bestAttempt.addEntry(ChatColor.BLACK + "");
-        bestAttempt.setPrefix(Main.chat("Best Attempt: " + MongoDatabase.getTime(player.getUniqueId())));
+        bestAttempt.setPrefix(Main.chat("&e&lBest Attempt&f: " + MongoDatabase.getTime(player.getUniqueId()) + "s"));
         obj.getScore(ChatColor.BLACK +"").setScore(8);
 
         obj.getScore(Main.chat("&2")).setScore(7);
 
-        obj.getScore("Leaderboard:").setScore(6);
+        obj.getScore("&e&lLeaderboard:").setScore(6);
 
-        List<String> list = MongoDatabase.getLeaderboard();
+        List<String> list = MongoDatabase.getLeaderboardFormatted();
 
         Team lb1 = board.registerNewTeam("leaderboard1");
         lb1.addEntry(ChatColor.GREEN + "");
-        lb1.setPrefix(Main.chat(list.get(4) == null ? "N/A" : list.get(4)));
+        lb1.setPrefix(Main.chat(list.get(4) == null ? "&7N/A" : list.get(4)));
         obj.getScore(ChatColor.GREEN + "").setScore(5);
 
         Team lb2 = board.registerNewTeam("leaderboard2");
         lb2.addEntry(ChatColor.RED + "");
-        lb2.setPrefix(Main.chat(list.get(3) == null ? "N/A" : list.get(3)));
+        lb2.setPrefix(Main.chat(list.get(3) == null ? "&7N/A" : list.get(3)));
         obj.getScore(ChatColor.RED + "").setScore(4);
 
         Team lb3 = board.registerNewTeam("leaderboard3");
         lb3.addEntry(ChatColor.BLUE + "");
-        lb3.setPrefix(Main.chat(list.get(2) == null ? "N/A" : list.get(2)));
+        lb3.setPrefix(Main.chat(list.get(2) == null ? "&7N/A" : list.get(2)));
         obj.getScore(ChatColor.BLUE + "").setScore(3);
 
         Team lb4 = board.registerNewTeam("leaderboard4");
         lb4.addEntry(ChatColor.GRAY + "");
-        lb4.setPrefix(Main.chat(list.get(1) == null ? "N/A" : list.get(1)));
+        lb4.setPrefix(Main.chat(list.get(1) == null ? "&7N/A" : list.get(1)));
         obj.getScore(ChatColor.GRAY + "").setScore(2);
 
         Team lb5 = board.registerNewTeam("leaderboard5");
         lb5.addEntry(ChatColor.GOLD + "");
-        lb5.setPrefix(Main.chat(list.get(0) == null ? "N/A" : list.get(0)));
+        lb5.setPrefix(Main.chat(list.get(0) == null ? "&7N/A" : list.get(0)));
         obj.getScore(ChatColor.GOLD + "").setScore(1);
 
         player.setScoreboard(board);
@@ -72,14 +72,15 @@ public class ScoreboardManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                List<String> list = MongoDatabase.getLeaderboard();
+                List<String> list = MongoDatabase.getLeaderboardFormatted();
                 for (UUID uuid : scoreboardPlayers){
                     Scoreboard board = Bukkit.getPlayer(uuid).getScoreboard();
-                    board.getTeam("leaderboard5").setPrefix(Main.chat(list.get(0) == null ? "N/A" : list.get(0)));
-                    board.getTeam("leaderboard4").setPrefix(Main.chat(list.get(1) == null ? "N/A" : list.get(1)));
-                    board.getTeam("leaderboard3").setPrefix(Main.chat(list.get(2) == null ? "N/A" : list.get(2)));
-                    board.getTeam("leaderboard2").setPrefix(Main.chat(list.get(3) == null ? "N/A" : list.get(3)));
-                    board.getTeam("leaderboard1").setPrefix(Main.chat(list.get(4) == null ? "N/A" : list.get(4)));
+                    board.getTeam("bestAttempt").setPrefix(Main.chat("&e&lBest Attempt&f: " + MongoDatabase.getTime(uuid) + "s"));
+                    board.getTeam("leaderboard5").setPrefix(Main.chat(list.get(0) == null ? "&7N/A" : list.get(0)));
+                    board.getTeam("leaderboard4").setPrefix(Main.chat(list.get(1) == null ? "&7N/A" : list.get(1)));
+                    board.getTeam("leaderboard3").setPrefix(Main.chat(list.get(2) == null ? "&7N/A" : list.get(2)));
+                    board.getTeam("leaderboard2").setPrefix(Main.chat(list.get(3) == null ? "&7N/A" : list.get(3)));
+                    board.getTeam("leaderboard1").setPrefix(Main.chat(list.get(4) == null ? "&7N/A" : list.get(4)));
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0L, 20 * 5);
