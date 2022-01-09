@@ -4,25 +4,29 @@
       "worldName": "world",
       "x": 258,
       "y": 69,
-      "z": 38
+      "z": 38,
+      "type": "start"
     },
     {
       "worldName": "world",
       "x": 245,
       "y": 74,
-      "z": 30
+      "z": 30,
+      "type": "checkpoint_1"
     },
     {
       "worldName": "world",
       "x": 233,
       "y": 78,
-      "z": 44
+      "z": 44,
+      "type": "checkpoint_2"
     },
     {
       "worldName": "world",
       "x": 233,
       "y": 79,
-      "z": 64
+      "z": 64,
+      "type": "end"
     }
   ]
 }
