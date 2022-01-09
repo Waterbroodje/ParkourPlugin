@@ -39,6 +39,7 @@ public class MongoDatabase {
             }
         });
     }
+
     public static int getTime(UUID uuid) {
         Document document = timeCollection.find(new Document("uuid", uuid.toString())).first();
 
