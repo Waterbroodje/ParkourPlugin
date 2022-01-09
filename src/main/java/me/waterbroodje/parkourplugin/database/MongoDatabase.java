@@ -30,14 +30,14 @@ public class MongoDatabase {
     }
 
     public static void updateTime(UUID uuid, double time) {
-        Bukkit.getScheduler().runTaskAsynchronously(Main.getInstance(), () -> {
-            try {
+        try {
+            if (time < getTime(uuid)) {
                 timeCollection.updateOne(new Document("uuid", uuid.toString()), new Document("$set", new Document("time", time)),
                         new UpdateOptions().upsert(true));
-            } catch (Exception exception) {
-                exception.printStackTrace();
             }
-        });
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
     }
 
     public static int getTime(UUID uuid) {
@@ -50,13 +50,13 @@ public class MongoDatabase {
         }
     }
 
-    public static List<String> getLeaderboard() {
+    public static List<String> getLeaderboardFormatted() {
         FindIterable<Document> cursor = timeCollection.find().sort(new Document("time", 1)).limit(5);
         resetList();
 
         int c = 0;
         for (Document document : cursor) {
-            list.set(c, Main.chat("l#" + c + 1 + " - " + Bukkit.getOfflinePlayer(document.getString("uuid")).getName() + " - " + document.getInteger("time") + "s"));
+            list.set(c, Main.chat(" &e#" + c + 1 + " &7- &e" + Bukkit.getOfflinePlayer(document.getString("uuid")).getName() + " &7- &f" + document.getInteger("time") + "s"));
             c++;
         }
         return list;
