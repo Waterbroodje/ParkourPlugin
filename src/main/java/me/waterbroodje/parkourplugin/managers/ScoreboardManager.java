@@ -66,24 +66,20 @@ public class ScoreboardManager {
 
         player.setScoreboard(board);
         scoreboardPlayers.add(player.getUniqueId());
-
-        runUpdateTask(player, board);
     }
 
-    private void runUpdateTask(Player player, Scoreboard board) {
+    public void runUpdateTask() {
         new BukkitRunnable() {
             @Override
             public void run() {
                 List<String> list = MongoDatabase.getLeaderboard();
-                if (scoreboardPlayers.contains(player.getUniqueId())) {
-
+                for (UUID uuid : scoreboardPlayers){
+                    Scoreboard board = Bukkit.getPlayer(uuid).getScoreboard();
                     board.getTeam("leaderboard5").setPrefix(Main.chat(list.get(0) == null ? "N/A" : list.get(0)));
                     board.getTeam("leaderboard4").setPrefix(Main.chat(list.get(1) == null ? "N/A" : list.get(1)));
                     board.getTeam("leaderboard3").setPrefix(Main.chat(list.get(2) == null ? "N/A" : list.get(2)));
                     board.getTeam("leaderboard2").setPrefix(Main.chat(list.get(3) == null ? "N/A" : list.get(3)));
                     board.getTeam("leaderboard1").setPrefix(Main.chat(list.get(4) == null ? "N/A" : list.get(4)));
-                } else {
-                    this.cancel();
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0L, 20 * 5);
