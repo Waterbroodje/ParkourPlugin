@@ -1,7 +1,6 @@
 package me.waterbroodje.parkourplugin;
 
 import com.google.gson.*;
-import com.sun.tools.javac.comp.Check;
 import me.waterbroodje.parkourplugin.database.MongoDatabase;
 import me.waterbroodje.parkourplugin.domain.Checkpoint;
 import me.waterbroodje.parkourplugin.domain.WorldGuardHelper;
@@ -13,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +33,7 @@ public final class Main extends JavaPlugin {
     private Map<String, Object> map = new HashMap<>();
     public Map<Checkpoint, Block> checkpoints = new HashMap<>();
     public Map<UUID, Block> lastCheckpoint = new HashMap<>();
+    public Map<UUID, Integer> seconds = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -55,6 +56,7 @@ public final class Main extends JavaPlugin {
         }
 
         loadCheckpoints();
+        loadTimer();
 
         MongoDatabase.connect();
         scoreboardManager.runUpdateTask();
@@ -62,6 +64,8 @@ public final class Main extends JavaPlugin {
         registerEvents(
                 new PlayerMoveListener()
         );
+
+
     }
 
     public static Main getInstance() {
@@ -104,5 +108,14 @@ public final class Main extends JavaPlugin {
             }
         }
         System.out.println(checkpoints);
+    }
+
+    public void loadTimer() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                seconds.replaceAll((u, v) -> seconds.get(u) + 1);
+            }
+        }.runTaskTimer(this, 0L, 20L);
     }
 }
