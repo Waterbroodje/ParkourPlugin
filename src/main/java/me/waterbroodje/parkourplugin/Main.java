@@ -1,7 +1,6 @@
 package me.waterbroodje.parkourplugin;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import me.waterbroodje.parkourplugin.database.MongoDatabase;
 import me.waterbroodje.parkourplugin.domain.WorldGuardHelper;
 import me.waterbroodje.parkourplugin.listeners.PlayerMoveListener;
@@ -12,13 +11,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class Main extends JavaPlugin {
 
@@ -50,6 +48,8 @@ public final class Main extends JavaPlugin {
             e.printStackTrace();
         }
 
+        loadCheckpoints();
+
         MongoDatabase.connect();
         scoreboardManager.runUpdateTask();
 
@@ -77,5 +77,25 @@ public final class Main extends JavaPlugin {
     public void registerEvents(Listener... listeners) {
         Arrays.asList(listeners).forEach(listener ->
                 Bukkit.getPluginManager().registerEvents(listener, this));
+    }
+
+    public void loadCheckpoints() {
+        String inline = "";
+        try {
+            Scanner scanner = new Scanner(configFile);
+            while (scanner.hasNextLine()) {
+                inline += scanner.nextLine() + "\n";
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        JsonObject object = (JsonObject) new JsonParser().parse(inline);
+        JsonArray array = (JsonArray) object.get("checkpointsData");
+        for (Object obj : array) {
+            if (obj instanceof JsonObject) {
+                System.out.println(((JsonObject) obj).get("worldName").getAsString());
+
+            }
+        }
     }
 }
