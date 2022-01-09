@@ -1,12 +1,16 @@
 package me.waterbroodje.parkourplugin;
 
 import com.google.gson.*;
+import com.sun.tools.javac.comp.Check;
 import me.waterbroodje.parkourplugin.database.MongoDatabase;
+import me.waterbroodje.parkourplugin.domain.Checkpoint;
 import me.waterbroodje.parkourplugin.domain.WorldGuardHelper;
 import me.waterbroodje.parkourplugin.listeners.PlayerMoveListener;
 import me.waterbroodje.parkourplugin.managers.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -25,8 +29,10 @@ public final class Main extends JavaPlugin {
     private static ScoreboardManager scoreboardManager;
     private File configFile;
 
-    public final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    public Map<String, Object> map = new HashMap<>();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private Map<String, Object> map = new HashMap<>();
+    public Map<Checkpoint, Block> checkpoints = new HashMap<>();
+    public Map<UUID, Block> lastCheckpoint = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -93,9 +99,10 @@ public final class Main extends JavaPlugin {
         JsonArray array = (JsonArray) object.get("checkpointsData");
         for (Object obj : array) {
             if (obj instanceof JsonObject) {
-                System.out.println(((JsonObject) obj).get("worldName").getAsString());
-
+                checkpoints.put(Checkpoint.valueOf(((JsonObject) obj).get("type").getAsString().toUpperCase()),
+                        new Location(Bukkit.getWorld(((JsonObject) obj).get("worldName").getAsString()), ((JsonObject) obj).get("x").getAsInt(), ((JsonObject) obj).get("y").getAsInt(), ((JsonObject) obj).get("z").getAsInt()).getBlock());
             }
         }
+        System.out.println(checkpoints);
     }
 }
