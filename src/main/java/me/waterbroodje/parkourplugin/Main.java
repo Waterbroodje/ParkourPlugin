@@ -26,6 +26,7 @@ public final class Main extends JavaPlugin {
         scoreboardManager = new ScoreboardManager();
 
         MongoDatabase.connect();
+        scoreboardManager.runUpdateTask();
 
         registerEvents(
                 new PlayerMoveListener()
@@ -47,6 +48,7 @@ public final class Main extends JavaPlugin {
     public static String chat(String s) {
         return ChatColor.translateAlternateColorCodes('&', s);
     }
+
     public void registerEvents(Listener... listeners) {
         Arrays.asList(listeners).forEach(listener ->
                 Bukkit.getPluginManager().registerEvents(listener, this));
