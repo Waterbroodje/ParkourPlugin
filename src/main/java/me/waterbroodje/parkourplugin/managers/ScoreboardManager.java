@@ -1,6 +1,5 @@
 package me.waterbroodje.parkourplugin.managers;
 
-import com.mongodb.Mongo;
 import me.waterbroodje.parkourplugin.Main;
 import me.waterbroodje.parkourplugin.database.MongoDatabase;
 import org.bukkit.Bukkit;
@@ -19,8 +18,36 @@ import java.util.UUID;
 public class ScoreboardManager {
 
     public List<UUID> scoreboardPlayers = new ArrayList<>();
+    private Scoreboard scoreboard;
 
     public void addScoreboard(Player player) {
+        player.setScoreboard(scoreboard);
+        scoreboardPlayers.add(player.getUniqueId());
+    }
+
+    public void runUpdateTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                List<String> list = MongoDatabase.getLeaderboardFormatted();
+                for (UUID uuid : scoreboardPlayers) {
+                    if (Bukkit.getPlayer(uuid) == null) {
+                        scoreboardPlayers.remove(uuid);
+                        return;
+                    }
+                    Scoreboard board = Bukkit.getPlayer(uuid).getScoreboard();
+                    board.getTeam("bestAttempt").setPrefix(Main.chat("&e&lBest Attempt&f: " + MongoDatabase.getTime(uuid) + "s"));
+                    board.getTeam("leaderboard5").setPrefix(Main.chat(list.get(0) == null ? "&7N/A" : list.get(0)));
+                    board.getTeam("leaderboard4").setPrefix(Main.chat(list.get(1) == null ? "&7N/A" : list.get(1)));
+                    board.getTeam("leaderboard3").setPrefix(Main.chat(list.get(2) == null ? "&7N/A" : list.get(2)));
+                    board.getTeam("leaderboard2").setPrefix(Main.chat(list.get(3) == null ? "&7N/A" : list.get(3)));
+                    board.getTeam("leaderboard1").setPrefix(Main.chat(list.get(4) == null ? "&7N/A" : list.get(4)));
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 0L, 20 * 5);
+    }
+
+    public void loadScoreboard() {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective obj = board.registerNewObjective("scoreboard", "dummy");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -30,12 +57,12 @@ public class ScoreboardManager {
 
         Team bestAttempt = board.registerNewTeam("bestAttempt");
         bestAttempt.addEntry(ChatColor.BLACK + "");
-        bestAttempt.setPrefix(Main.chat("&e&lBest Attempt&f: " + MongoDatabase.getTime(player.getUniqueId()) + "s"));
+        bestAttempt.setPrefix(Main.chat("&e&lBest Attempt&f: &f0s"));
         obj.getScore(ChatColor.BLACK +"").setScore(8);
 
         obj.getScore(Main.chat("&2")).setScore(7);
 
-        obj.getScore("&e&lLeaderboard:").setScore(6);
+        obj.getScore(Main.chat("&e&lLeaderboard:")).setScore(6);
 
         List<String> list = MongoDatabase.getLeaderboardFormatted();
 
@@ -64,25 +91,6 @@ public class ScoreboardManager {
         lb5.setPrefix(Main.chat(list.get(0) == null ? "&7N/A" : list.get(0)));
         obj.getScore(ChatColor.GOLD + "").setScore(1);
 
-        player.setScoreboard(board);
-        scoreboardPlayers.add(player.getUniqueId());
-    }
-
-    public void runUpdateTask() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                List<String> list = MongoDatabase.getLeaderboardFormatted();
-                for (UUID uuid : scoreboardPlayers){
-                    Scoreboard board = Bukkit.getPlayer(uuid).getScoreboard();
-                    board.getTeam("bestAttempt").setPrefix(Main.chat("&e&lBest Attempt&f: " + MongoDatabase.getTime(uuid) + "s"));
-                    board.getTeam("leaderboard5").setPrefix(Main.chat(list.get(0) == null ? "&7N/A" : list.get(0)));
-                    board.getTeam("leaderboard4").setPrefix(Main.chat(list.get(1) == null ? "&7N/A" : list.get(1)));
-                    board.getTeam("leaderboard3").setPrefix(Main.chat(list.get(2) == null ? "&7N/A" : list.get(2)));
-                    board.getTeam("leaderboard2").setPrefix(Main.chat(list.get(3) == null ? "&7N/A" : list.get(3)));
-                    board.getTeam("leaderboard1").setPrefix(Main.chat(list.get(4) == null ? "&7N/A" : list.get(4)));
-                }
-            }
-        }.runTaskTimer(Main.getInstance(), 0L, 20 * 5);
+        this.scoreboard = board;
     }
 }
