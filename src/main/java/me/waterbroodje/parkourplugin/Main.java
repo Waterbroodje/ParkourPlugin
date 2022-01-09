@@ -32,7 +32,7 @@ public final class Main extends JavaPlugin {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private Map<String, Object> map = new HashMap<>();
     public Map<Checkpoint, Block> checkpoints = new HashMap<>();
-    public Map<UUID, Block> lastCheckpoint = new HashMap<>();
+    public Map<UUID, List<Block>> lastCheckpoint = new HashMap<>();
     public Map<UUID, Integer> seconds = new HashMap<>();
 
     @Override
@@ -59,6 +59,7 @@ public final class Main extends JavaPlugin {
         loadTimer();
 
         MongoDatabase.connect();
+        scoreboardManager.loadScoreboard();
         scoreboardManager.runUpdateTask();
 
         registerEvents(
