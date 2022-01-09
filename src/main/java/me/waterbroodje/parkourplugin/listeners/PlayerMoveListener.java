@@ -1,6 +1,7 @@
 package me.waterbroodje.parkourplugin.listeners;
 
 import me.waterbroodje.parkourplugin.Main;
+import me.waterbroodje.parkourplugin.database.MongoDatabase;
 import me.waterbroodje.parkourplugin.domain.Checkpoint;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,7 +26,7 @@ public class PlayerMoveListener implements Listener {
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
 
-        if (Main.getInstance().checkpoints.containsValue(player.getLocation().getBlock())) {
+        if (Main.getInstance().checkpoints.containsValue(player.getLocation().getBlock()) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
             // player is on checkpoint
             for (Checkpoint checkpoint : Main.getInstance().checkpoints.keySet()) {
 
@@ -38,7 +39,11 @@ public class PlayerMoveListener implements Listener {
                     Main.getInstance().lastCheckpoint.put(player.getUniqueId(), player.getLocation().getBlock());
                 } else if (checkpoint.equals(Checkpoint.END)) {
                     //todo: handle the end
+                    int seconds = Main.getInstance().seconds.get(player.getUniqueId());
+                    Main.getInstance().seconds.remove(player.getUniqueId());
+                    Main.getInstance().lastCheckpoint.remove(player.getUniqueId());
                     player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("end-message")));
+                    MongoDatabase.updateTime(player.getUniqueId(), seconds);
                 }
             }
         }
