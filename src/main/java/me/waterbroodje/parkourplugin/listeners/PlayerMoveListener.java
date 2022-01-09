@@ -10,8 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 public class PlayerMoveListener implements Listener {
 
@@ -26,30 +25,26 @@ public class PlayerMoveListener implements Listener {
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
 
-        if (Main.getInstance().checkpoints.containsValue(player.getLocation().getBlock()) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
+        if (Main.getInstance().checkpoints.get(Checkpoint.START).equals(player.getLocation().getBlock()) && !Main.getInstance().seconds.containsKey(player.getUniqueId())) {
+            
+            player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("start-message")));
+            Main.getInstance().seconds.put(player.getUniqueId(), 0);
+            Main.getInstance().lastCheckpoint.put(player.getUniqueId(), new ArrayList<>());
+        } else if ((Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_1).equals(player.getLocation().getBlock()) || Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_2).equals(player.getLocation().getBlock())) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
             // player is on checkpoint
-            for (Checkpoint checkpoint : Main.getInstance().checkpoints.keySet()) {
-
-                if (checkpoint.equals(Checkpoint.START)) {
-                    player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("start-message")));
-
-                } else if (checkpoint.equals(Checkpoint.CHECKPOINT_1) || checkpoint.equals(Checkpoint.CHECKPOINT_2) && !Main.getInstance().lastCheckpoint.get(player.getUniqueId()).equals(player.getLocation().getBlock())) {
-
-                    player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("checkpoint-message")));
-                    Main.getInstance().lastCheckpoint.put(player.getUniqueId(), player.getLocation().getBlock());
-                } else if (checkpoint.equals(Checkpoint.END)) {
-                    //todo: handle the end
-                    int seconds = Main.getInstance().seconds.get(player.getUniqueId());
-                    Main.getInstance().seconds.remove(player.getUniqueId());
-                    Main.getInstance().lastCheckpoint.remove(player.getUniqueId());
-                    player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("end-message")));
-                    MongoDatabase.updateTime(player.getUniqueId(), seconds);
-                }
+            if (Main.getInstance().lastCheckpoint.containsKey(player.getUniqueId())) {
+                if (Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(player.getLocation().getBlock()))
+                    return;
             }
-        }
-    }
+            player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("checkpoint-message")));
+            Main.getInstance().lastCheckpoint.get(player.getUniqueId()).add(player.getLocation().getBlock());
+        } if (Main.getInstance().checkpoints.get(Checkpoint.END).equals(player.getLocation().getBlock()) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
 
-    private boolean equals(Location location, Location locationb) {
-        return Objects.equals(location.getWorld(), locationb.getWorld()) && Objects.equals(location.getBlockX(), locationb.getBlockX()) && Objects.equals(location.getBlockY(), locationb.getBlockY()) && Objects.equals(location.getBlockZ(), locationb.getBlockZ());
+            int seconds = Main.getInstance().seconds.get(player.getUniqueId());
+            player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("end-message").replace("%time%", seconds + "")));
+            Main.getInstance().seconds.remove(player.getUniqueId());
+            Main.getInstance().lastCheckpoint.remove(player.getUniqueId());
+            MongoDatabase.updateTime(player.getUniqueId(), seconds);
+        }
     }
 }
