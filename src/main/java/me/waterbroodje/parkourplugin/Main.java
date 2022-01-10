@@ -20,6 +20,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public final class Main extends JavaPlugin {
@@ -33,7 +34,7 @@ public final class Main extends JavaPlugin {
     private Map<String, Object> map = new HashMap<>();
     public Map<Checkpoint, Block> checkpoints = new HashMap<>();
     public Map<UUID, List<Block>> lastCheckpoint = new HashMap<>();
-    public Map<UUID, Integer> seconds = new HashMap<>();
+    public Map<UUID, Double> seconds = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -115,8 +116,8 @@ public final class Main extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                seconds.replaceAll((u, v) -> seconds.get(u) + 1);
+                seconds.replaceAll((u, v) -> seconds.get(u) + 0.5);
             }
-        }.runTaskTimer(this, 0L, 20L);
+        }.runTaskTimer(this, 0L, 10L);
     }
 }
