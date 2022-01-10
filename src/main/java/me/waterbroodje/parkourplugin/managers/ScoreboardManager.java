@@ -62,7 +62,7 @@ public class ScoreboardManager {
 
         obj.getScore(Main.chat("&2")).setScore(7);
 
-        obj.getScore(Main.chat("&e&lLeaderboard:")).setScore(6);
+        obj.getScore(Main.chat("&e&lLeaderboard&f:")).setScore(6);
 
         List<String> list = MongoDatabase.getLeaderboardFormatted();
 
