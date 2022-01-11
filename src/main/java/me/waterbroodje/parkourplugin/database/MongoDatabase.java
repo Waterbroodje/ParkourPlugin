@@ -61,7 +61,7 @@ public class MongoDatabase {
 
             return String.format("%dm %ds%n", minutes, seconds);
         } else {
-            return "0";
+            return "0's";
         }
     }
 
