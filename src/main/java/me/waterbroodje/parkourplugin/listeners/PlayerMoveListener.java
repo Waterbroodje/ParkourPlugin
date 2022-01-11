@@ -28,7 +28,7 @@ public class PlayerMoveListener implements Listener {
         if (Main.getInstance().checkpoints.get(Checkpoint.START).equals(player.getLocation().getBlock()) && !Main.getInstance().seconds.containsKey(player.getUniqueId())) {
 
             player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("start-message")));
-            Main.getInstance().seconds.put(player.getUniqueId(), 0.0);
+            Main.getInstance().seconds.put(player.getUniqueId(), 0);
             Main.getInstance().lastCheckpoint.put(player.getUniqueId(), new ArrayList<>());
         } else if ((Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_1).equals(player.getLocation().getBlock()) || Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_2).equals(player.getLocation().getBlock())) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
             // player is on checkpoint
@@ -40,11 +40,15 @@ public class PlayerMoveListener implements Listener {
             Main.getInstance().lastCheckpoint.get(player.getUniqueId()).add(player.getLocation().getBlock());
         } if (Main.getInstance().checkpoints.get(Checkpoint.END).equals(player.getLocation().getBlock()) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
 
-            double seconds = Main.getInstance().seconds.get(player.getUniqueId());
-            player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("end-message").replace("%time%", seconds + "")));
-            Main.getInstance().seconds.remove(player.getUniqueId());
-            Main.getInstance().lastCheckpoint.remove(player.getUniqueId());
-            MongoDatabase.updateTime(player.getUniqueId(), seconds);
+            if (Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_1)) && Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_2))) {
+                int seconds = Main.getInstance().seconds.get(player.getUniqueId());
+                player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("end-message").replace("%time%", seconds + "")));
+                Main.getInstance().seconds.remove(player.getUniqueId());
+                Main.getInstance().lastCheckpoint.remove(player.getUniqueId());
+                MongoDatabase.updateTime(player.getUniqueId(), seconds);
+            } else {
+                player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("missing-checkpoints-message")));
+            }
         }
     }
 }
