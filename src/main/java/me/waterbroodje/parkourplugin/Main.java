@@ -5,6 +5,7 @@ import me.waterbroodje.parkourplugin.database.MongoDatabase;
 import me.waterbroodje.parkourplugin.domain.Checkpoint;
 import me.waterbroodje.parkourplugin.domain.WorldGuardHelper;
 import me.waterbroodje.parkourplugin.listeners.PlayerMoveListener;
+import me.waterbroodje.parkourplugin.listeners.PlayerQuitListener;
 import me.waterbroodje.parkourplugin.managers.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -34,7 +35,7 @@ public final class Main extends JavaPlugin {
     private Map<String, Object> map = new HashMap<>();
     public Map<Checkpoint, Block> checkpoints = new HashMap<>();
     public Map<UUID, List<Block>> lastCheckpoint = new HashMap<>();
-    public Map<UUID, Double> seconds = new HashMap<>();
+    public Map<UUID, Integer> seconds = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -64,10 +65,9 @@ public final class Main extends JavaPlugin {
         scoreboardManager.runUpdateTask();
 
         registerEvents(
-                new PlayerMoveListener()
+                new PlayerMoveListener(),
+                new PlayerQuitListener()
         );
-
-
     }
 
     public static Main getInstance() {
@@ -116,7 +116,7 @@ public final class Main extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                seconds.replaceAll((u, v) -> seconds.get(u) + 0.5);
+                seconds.replaceAll((u, v) -> seconds.get(u) + 1);
             }
         }.runTaskTimer(this, 0L, 10L);
     }
