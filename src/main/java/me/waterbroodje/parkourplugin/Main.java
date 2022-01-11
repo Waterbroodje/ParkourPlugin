@@ -10,6 +10,7 @@ import me.waterbroodje.parkourplugin.managers.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,7 +22,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.text.DecimalFormat;
 import java.util.*;
 
 public final class Main extends JavaPlugin {
@@ -61,13 +61,13 @@ public final class Main extends JavaPlugin {
         loadTimer();
 
         MongoDatabase.connect();
-        scoreboardManager.loadScoreboard();
         scoreboardManager.runUpdateTask();
 
         registerEvents(
                 new PlayerMoveListener(),
                 new PlayerQuitListener()
         );
+
     }
 
     public static Main getInstance() {

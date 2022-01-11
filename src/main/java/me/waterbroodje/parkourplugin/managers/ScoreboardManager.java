@@ -18,10 +18,9 @@ import java.util.UUID;
 public class ScoreboardManager {
 
     public List<UUID> scoreboardPlayers = new ArrayList<>();
-    private Scoreboard scoreboard;
 
     public void addScoreboard(Player player) {
-        player.setScoreboard(scoreboard);
+        player.setScoreboard(this.loadScoreboard(player.getUniqueId()));
         scoreboardPlayers.add(player.getUniqueId());
     }
 
@@ -31,13 +30,8 @@ public class ScoreboardManager {
             public void run() {
                 List<String> list = MongoDatabase.getLeaderboardFormatted();
                 for (UUID uuid : scoreboardPlayers) {
-                    if (Bukkit.getPlayer(uuid) == null) {
-                        scoreboardPlayers.remove(uuid);
-                        return;
-                    }
-                    System.out.println("---");
-                    System.out.println(Bukkit.getPlayer(uuid) + ":" + uuid + ":" + MongoDatabase.getTimeFormatted(uuid) + ":" + MongoDatabase.getTime(uuid));
-                    System.out.println("---");
+                    if (Bukkit.getPlayer(uuid) == null) { scoreboardPlayers.remove(uuid); return;}
+
                     Scoreboard board = Bukkit.getPlayer(uuid).getScoreboard();
                     board.getTeam("bestAttempt").setPrefix(Main.chat("&e&lBest Attempt&f: " + MongoDatabase.getTimeFormatted(uuid)));
                     board.getTeam("leaderboard5").setPrefix(Main.chat(list.get(0) == null ? "&e #5 &7- &enone &7- &f0s" : "&e #5 " + list.get(0)));
@@ -50,7 +44,7 @@ public class ScoreboardManager {
         }.runTaskTimer(Main.getInstance(), 0L, 20 * 5);
     }
 
-    public void loadScoreboard() {
+    public Scoreboard loadScoreboard(UUID uuid) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective obj = board.registerNewObjective("scoreboard", "dummy");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -60,8 +54,8 @@ public class ScoreboardManager {
 
         Team bestAttempt = board.registerNewTeam("bestAttempt");
         bestAttempt.addEntry(ChatColor.BLACK + "");
-        bestAttempt.setPrefix(Main.chat("&e&lBest Attempt&f: &f0s"));
-        obj.getScore(ChatColor.BLACK +"").setScore(8);
+        bestAttempt.setPrefix(Main.chat("&e&lBest Attempt&f: &f" + MongoDatabase.getTimeFormatted(uuid)));
+        obj.getScore(Main.chat(ChatColor.BLACK + "")).setScore(8);
 
         obj.getScore(Main.chat("&2")).setScore(7);
 
@@ -94,6 +88,6 @@ public class ScoreboardManager {
         lb5.setPrefix(Main.chat(list.get(0) == null ? "&e #5 &7- &enone &7- &f0s" : "&e #5 " + list.get(0)));
         obj.getScore(ChatColor.GOLD + "").setScore(1);
 
-        this.scoreboard = board;
+        return board;
     }
 }

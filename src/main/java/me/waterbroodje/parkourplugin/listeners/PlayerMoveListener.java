@@ -5,6 +5,8 @@ import me.waterbroodje.parkourplugin.database.MongoDatabase;
 import me.waterbroodje.parkourplugin.domain.Checkpoint;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,30 +27,38 @@ public class PlayerMoveListener implements Listener {
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
 
-        if (Main.getInstance().checkpoints.get(Checkpoint.START).equals(player.getLocation().getBlock()) && !Main.getInstance().seconds.containsKey(player.getUniqueId())) {
+        if (!e.getFrom().getBlock().equals(e.getTo().getBlock())) {
+            if (Main.getInstance().checkpoints.get(Checkpoint.START).equals(e.getTo().getBlock()) && !Main.getInstance().seconds.containsKey(player.getUniqueId())) {
 
-            player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("start-message")));
-            Main.getInstance().seconds.put(player.getUniqueId(), 0);
-            Main.getInstance().lastCheckpoint.put(player.getUniqueId(), new ArrayList<>());
-        } else if ((Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_1).equals(player.getLocation().getBlock()) || Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_2).equals(player.getLocation().getBlock())) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
-            // player is on checkpoint
-            if (Main.getInstance().lastCheckpoint.containsKey(player.getUniqueId())) {
-                if (Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(player.getLocation().getBlock()))
-                    return;
-            }
-            player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("checkpoint-message")));
-            Main.getInstance().lastCheckpoint.get(player.getUniqueId()).add(player.getLocation().getBlock());
-        } if (Main.getInstance().checkpoints.get(Checkpoint.END).equals(player.getLocation().getBlock()) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
+                player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("start-message")));
+                Main.getInstance().seconds.put(player.getUniqueId(), 0);
+                List<Block> list = new ArrayList<>();
+                list.add(e.getTo().getBlock());
+                Main.getInstance().lastCheckpoint.put(player.getUniqueId(), list);
 
-            if (Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_1)) && Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_2))) {
-                int seconds = Main.getInstance().seconds.get(player.getUniqueId());
-                player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("end-message").replace("%time%", seconds + "")));
-                Main.getInstance().seconds.remove(player.getUniqueId());
-                Main.getInstance().lastCheckpoint.remove(player.getUniqueId());
-                MongoDatabase.updateTime(player.getUniqueId(), seconds);
-            } else {
-                player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("missing-checkpoints-message")));
+            } else if ((Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_1).equals(e.getTo().getBlock()) || Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_2).equals(e.getTo().getBlock())) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
+
+                if (Main.getInstance().lastCheckpoint.containsKey(player.getUniqueId())) {
+                    if (Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(e.getTo().getBlock())) return;
+                }
+
+                player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("checkpoint-message")));
+                Main.getInstance().lastCheckpoint.get(player.getUniqueId()).add(e.getTo().getBlock());
+            } else if (Main.getInstance().checkpoints.get(Checkpoint.END).equals(e.getTo().getBlock()) && Main.getInstance().seconds.containsKey(player.getUniqueId())) {
+
+                if (Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_1)) && Main.getInstance().lastCheckpoint.get(player.getUniqueId()).contains(Main.getInstance().checkpoints.get(Checkpoint.CHECKPOINT_2))) {
+
+                    int seconds = Main.getInstance().seconds.get(player.getUniqueId());
+                    player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("end-message").replace("%time%", seconds + "")));
+                    Main.getInstance().seconds.remove(player.getUniqueId());
+                    Main.getInstance().lastCheckpoint.remove(player.getUniqueId());
+                    MongoDatabase.updateTime(player.getUniqueId(), seconds);
+
+                } else {
+                    player.sendMessage(Main.chat(Main.getInstance().getConfig().getString("missing-checkpoints-message")));
+                }
             }
+
         }
     }
 }
