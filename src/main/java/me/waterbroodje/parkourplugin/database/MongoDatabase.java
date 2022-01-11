@@ -5,19 +5,14 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
-import jdk.jpackage.internal.IOUtils;
 import me.waterbroodje.parkourplugin.Main;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.flywaydb.core.internal.util.DateUtils;
 
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Time;
-import java.text.ParseException;
+import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class MongoDatabase {
 
@@ -36,7 +31,7 @@ public class MongoDatabase {
         }
     }
 
-    public static void updateTime(UUID uuid, double time) {
+    public static void updateTime(UUID uuid, int time) {
         try {
             if (getTime(uuid) != 0) {
                 if (time > getTime(uuid)) return;
@@ -51,11 +46,30 @@ public class MongoDatabase {
         }
     }
 
-    public static double getTime(UUID uuid) {
+    public static String getTimeFormatted(UUID uuid) {
         Document document = timeCollection.find(new Document("uuid", uuid.toString())).first();
 
         if (document != null) {
-            return document.getDouble("time");
+            int time = document.getInteger("time");
+
+            if (time < 60) return time + "s";
+
+            BigDecimal secondsValue = BigDecimal.valueOf(time);
+            Duration dur = Duration.ofSeconds(secondsValue.longValueExact());
+            int minutes = dur.toMinutesPart();
+            int seconds = dur.toSecondsPart();
+
+            return String.format("%dm %ds%n", minutes, seconds);
+        } else {
+            return "0";
+        }
+    }
+
+    public static int getTime(UUID uuid) {
+        Document document = timeCollection.find(new Document("uuid", uuid.toString())).first();
+
+        if (document != null) {
+            return document.getInteger("time");
         } else {
             return 0;
         }
@@ -67,7 +81,7 @@ public class MongoDatabase {
 
         int c = 5;
         for (Document document : cursor) {
-            list.set(c - 1, Main.chat(" &e#" + ((c + 1) - c) + " &7- &e" + Bukkit.getOfflinePlayer(UUID.fromString(document.getString("uuid"))).getName() + " &7- &f" + document.getDouble("time") + "s"));
+            list.set(c - 1, Main.chat("&7- &e" + Bukkit.getOfflinePlayer(UUID.fromString(document.getString("uuid"))).getName() + " &7- &f" + getTimeFormatted(UUID.fromString(document.getString("uuid")))));
             c--;
         }
         return list;
